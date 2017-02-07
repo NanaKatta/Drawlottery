@@ -1,22 +1,13 @@
 package com.hudongwx.drawlottery.mobile.service.captcha.impl;
 
 import com.hudongwx.drawlottery.mobile.service.captcha.ICaptchaService;
-import com.octo.captcha.component.word.wordgenerator.RandomWordGenerator;
-import com.octo.captcha.service.image.DefaultManageableImageCaptchaService;
 import com.octo.captcha.service.image.ImageCaptchaService;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
-import org.apache.shiro.crypto.RandomNumberGenerator;
-import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.interceptor.SimpleKeyGenerator;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -59,9 +50,10 @@ public class CaptchaServiceImpl implements ICaptchaService {
      */
     @CachePut(key = "#id")
     @Override
-    public String sendPhoneCaptchCode(String id) {
+    public String sendPhoneCaptchaCode(String id, String phoneNumber) {
         ThreadLocalRandom current = ThreadLocalRandom.current();
         int i = current.nextInt(1000, 9999);
+        //TODO 调用阿里云 短信验证服务
         return String.valueOf(i);
     }
 

@@ -201,7 +201,7 @@ public class Settings {
     /**
      * 服务外链地址
      */
-    public static final String SERVER_URL_PATH = "http://192.168.6.199:8080/";
+    public static final String SERVER_URL_PATH = "http://192.168.6.80:8080/";
 
     /**
      * 商品图片路径

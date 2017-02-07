@@ -82,13 +82,10 @@ public class CaptchaCodeController extends BaseController {
      * @return
      */
     @RequestMapping(value = "/sendsms", method = {RequestMethod.POST, RequestMethod.GET})
-    public JSONObject sendPhoneCaptchaCode(@RequestParam("imgCode") String imgCode){
-        if(captchaService.validatorImageCode(getSessionId(),imgCode)){//验证成功
-            captchaService.sendPhoneCaptchCode(getSessionId());
-            return  success();
-        }else{
-            return  fail();
-        }
+    public JSONObject sendPhoneCaptchaCode(@RequestParam String phoneNumber){
+        final String s = captchaService.sendPhoneCaptchaCode(getSessionId(),phoneNumber);
+        System.out.println("验证码："+s);
+        return  success();
     }
 
     /**

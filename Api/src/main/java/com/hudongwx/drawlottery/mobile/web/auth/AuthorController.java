@@ -141,7 +141,7 @@ public class AuthorController extends BaseController {
             @RequestParam("phone") String phone,
             @RequestParam("password") String password,
             @RequestParam("SMSCode") String smscode) {
-            boolean isOk = captchaService.validatorImageCode(phone, smscode);
+            boolean isOk = captchaService.validatorPhoneCaptchCode(smscode);
             if (isOk) {
                 fail(-1, "验证码无效");
             } else {

@@ -38,7 +38,7 @@ public interface ICaptchaService  {
      * 发送手机验证码
      * @return
      */
-    public String sendPhoneCaptchCode(String id);
+    public String sendPhoneCaptchaCode(String id, String phoneNumber);
 
     /**
      * 验证手机验证码

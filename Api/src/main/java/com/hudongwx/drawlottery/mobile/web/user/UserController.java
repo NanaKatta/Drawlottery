@@ -172,7 +172,7 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/api/v1/user/get/phone",method = {RequestMethod.POST,RequestMethod.GET})
     public JSONObject getPhone(){
         final JSONObject obj = new JSONObject();
-        obj.put("phone",getUser().getPhoneNumber());
+        obj.put("phoneNumber",getUser().getPhoneNumber());
         return success(obj);
     }
 
