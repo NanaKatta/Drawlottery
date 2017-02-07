@@ -66,6 +66,13 @@ public interface IExchangeMethodService {
     //兑换闪币
     boolean temp4(Long accountId,Long commodityId);
 
+    /**
+     * 兑换闪币
+     * @param accountId 用户id
+     * @param money 数量
+     */
+    void exchangeVirtual(Long accountId, Integer money);
+
     //到店领取
     Map<String,Object> temp5(Long accountId,Long commodityId);
 

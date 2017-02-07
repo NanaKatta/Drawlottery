@@ -349,9 +349,6 @@ public class ExchangeMethodServiceImpl implements IExchangeMethodService {
      */
     @Override
     public boolean temp4(Long accountId, Long commodityId) {
-        User user = userMapper.selectByPrimaryKey(accountId);
-        Integer number = user.getGoldNumber();//获得用户当前闪币数量
-
         Commodity commodity = commMapper.selectByPrimaryKey(commodityId);
         commodity.setExchangeState(1);
         commodity.setExchangeWay(4);
@@ -359,11 +356,23 @@ public class ExchangeMethodServiceImpl implements IExchangeMethodService {
 
         CommodityTemplate template = templateMapper.selectByPrimaryKey(commodity.getTempId());
         Integer money = template.getExchangeMoney();//获得折换闪币金额
+        exchangeVirtual(accountId, money);
+        return true;
+    }
 
+    /**
+     * 兑换闪币
+     *
+     * @param accountId 用户id
+     * @param money     数量
+     */
+    @Override
+    public void exchangeVirtual(Long accountId, Integer money) {
+        User user = userMapper.selectByPrimaryKey(accountId);
+        Integer number = user.getGoldNumber();//获得用户当前闪币数量
         user.setAccountId(accountId);
         user.setGoldNumber(number + money);//修改用户闪币数额
-        int i1 = userMapper.updateByPrimaryKeySelective(user);
-        return i1 > 0 && i > 0;
+        userMapper.updateByPrimaryKeySelective(user);
     }
 
     /**

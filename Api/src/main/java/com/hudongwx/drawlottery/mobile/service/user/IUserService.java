@@ -1,5 +1,6 @@
 package com.hudongwx.drawlottery.mobile.service.user;
 
+import com.hudongwx.drawlottery.mobile.dto.HistoryResult;
 import com.hudongwx.drawlottery.mobile.entitys.ThirdPartyLoginToken;
 import com.hudongwx.drawlottery.mobile.entitys.User;
 
@@ -116,7 +117,7 @@ public interface IUserService {
      * @param lastCommId
      * @return
      */
-    List<Map<String, Object>> selectPurchaseRecords(Integer item, Long accountId, Long lastCommId);
+    List<HistoryResult> selectPurchaseRecords(Integer item, Long accountId, Long lastCommId);
 
     /**
      * 查询用户夺宝记录中的Code码

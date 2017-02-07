@@ -53,4 +53,46 @@
       ON tor.id = toc.orders_id
       WHERE toc.commodity_id =#{commId} and tor.user_account_id =#{accountId}
     </select>
+    <select id="selectHistory" resultType="com.hudongwx.drawlottery.mobile.dto.HistoryResult">
+        select
+            comm.commodity_id as id,
+            oc.amount as userBuyNumber,
+            comm.buy_current_number as buyCurrentNumber,
+            temp.buy_total_number as buyTotalNumber,
+            comm.state_id as commState,
+            comm.round_time as roundTime,
+            temp.cover_img_url as coverImgUrl,
+            temp.name as commName,
+            orders.user_account_id as userAccountId,
+            comm.end_time as endTime,
+            user.nickname as userNickname,
+            temp.easyWinning as win
+            from t_commoditys comm
+            INNER JOIN t_commodity_template temp on temp.id = comm.temp_id
+            INNER JOIN t_orders orders on orders.user_account_id = #{accountId} and orders.pay_state = #{orderState}
+            INNER JOIN t_orders_commoditys oc on oc.commodity_id = comm.commodity_id and orders.id = oc.orders_id
+            INNER JOIN t_users user on user.account_id = orders.user_account_id
+        <where>
+            <choose>
+                <when test="item == 1">
+                    comm.state_id = 3
+                </when>
+                <when test="item == 2">
+                    comm.state_id = 1
+                </when>
+            </choose>
+            and submit_date &lt; (
+            <if test="lastCommId != 0">
+                select submit_date from t_orders orders
+                INNER join t_orders_commoditys
+                on #{lastCommId} = t_orders_commoditys.commodity_id
+                AND t_orders_commoditys.orders_id = orders.id limit 1
+            </if>
+            <if test="lastCommId == 0">
+                99999999999999
+            </if>
+            )
+        </where>
+        ORDER BY orders.submit_date DESC,comm.commodity_id desc limit 10;
+    </select>
 </mapper>

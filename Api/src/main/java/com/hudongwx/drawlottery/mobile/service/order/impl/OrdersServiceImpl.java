@@ -91,7 +91,7 @@ public class OrdersServiceImpl implements IOrdersService {
             int remainingNum = currentCommodity.getBuyTotalNumber() - currentCommodity.getBuyCurrentNumber();
 
             int buyNum = ca.getAmount();
-            if (buyNum > remainingNum) {
+            if (buyNum > remainingNum && currentCommodity.getAutoRound() == 1) {
                 Commodity nextCommodity = commodityService.getNextCommodity(currentCommodity.getId());
                 updateLuckCodes(accountId, nextCommodity.getId(), buyNum - remainingNum, orders);
                 buyNum = remainingNum;

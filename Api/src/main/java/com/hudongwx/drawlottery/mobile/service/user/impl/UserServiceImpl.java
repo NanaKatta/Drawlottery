@@ -2,6 +2,7 @@ package com.hudongwx.drawlottery.mobile.service.user.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.hudongwx.drawlottery.mobile.dto.HistoryResult;
 import com.hudongwx.drawlottery.mobile.entitys.*;
 import com.hudongwx.drawlottery.mobile.mappers.*;
 import com.hudongwx.drawlottery.mobile.service.user.IUserService;
@@ -499,8 +500,9 @@ public class UserServiceImpl implements IUserService {
      * @return
      */
     @Override
-    public List<Map<String, Object>> selectPurchaseRecords(Integer item, Long accountId, Long lastCommId) {
-        //查询已支付的订单
+    public List<HistoryResult> selectPurchaseRecords(Integer item, Long accountId, Long lastCommId) {
+
+        /*//查询已支付的订单
         List<Long> orderIdList = ordersMapper.selectUserOrderIdByPayState(accountId, Settings.ORDERS_ALREADY_PAID);
         List<Map<String, Object>> mapList = new ArrayList<>();
         for (Long orderId : orderIdList) {
@@ -544,8 +546,8 @@ public class UserServiceImpl implements IUserService {
                 }
             }
 
-        }
-        return mapList;
+        }*/
+        return ordersMapper.selectHistory(item, accountId, lastCommId,Settings.ORDERS_ALREADY_PAID);
     }
 
     /**

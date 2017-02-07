@@ -3,6 +3,7 @@ package com.hudongwx.drawlottery.mobile.service.order.impl;
 import com.hudongwx.drawlottery.mobile.entitys.*;
 import com.hudongwx.drawlottery.mobile.mappers.*;
 import com.hudongwx.drawlottery.mobile.service.commodity.ICommodityService;
+import com.hudongwx.drawlottery.mobile.service.commodity.IExchangeMethodService;
 import com.hudongwx.drawlottery.mobile.utils.LotteryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -48,6 +49,9 @@ public class OrdersServiceImplAsync {
     @Autowired
     NotificationPrizeMapper npMapper;
 
+    @Resource
+    IExchangeMethodService exchangeMethodService;
+
     /*
         订单异步处理方法
         异步处理方法必须和调用方法不在同一个类
@@ -89,6 +93,8 @@ public class OrdersServiceImplAsync {
                         ordersCommoditys1.setAmount(subNum);
                         orderMapper.insert(ordersCommoditys1);
                     }
+                }else{
+                    exchangeMethodService.exchangeVirtual(accountId,subNum);
                 }
                 LotteryUtils.raffle(npMapper, commMapper, comMapper, mapper, templateMapper, codesMapper, lotteryInfoMapper, userMapper, currentCommodity);
                 //商品售罄开奖，更新商品信息
@@ -102,7 +108,7 @@ public class OrdersServiceImplAsync {
             int s = currentCommodity.getBuyCurrentNumber() + Math.min(amount,remainNum);
             commMapper.updateBuyCurrentNum(currentCommodity.getId(), s);
 
-            ordersCommoditys.setAmount(amount);//设置商品订单表购买数量
+            ordersCommoditys.setAmount(Math.min(amount,remainNum));//设置商品订单表购买数量
             orderMapper.insert(ordersCommoditys);//添加商品订单信息
 
         }

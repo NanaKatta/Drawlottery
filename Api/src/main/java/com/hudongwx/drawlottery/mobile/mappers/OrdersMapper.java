@@ -1,6 +1,7 @@
 package com.hudongwx.drawlottery.mobile.mappers;
 
 import com.hudongwx.drawlottery.mobile.commn.BaseMapper;
+import com.hudongwx.drawlottery.mobile.dto.HistoryResult;
 import com.hudongwx.drawlottery.mobile.entitys.Orders;
 import org.apache.ibatis.annotations.Param;
 
@@ -29,4 +30,6 @@ public interface OrdersMapper extends BaseMapper<Orders> {
     List<Orders> selectByBuyDateDesc();
 
     Integer sumUserCommAmountByCommId(@Param("accountId")Long accountId, @Param("commId")Long commId);
+
+    List<HistoryResult> selectHistory(@Param("item") Integer item, @Param("accountId") Long accountId, @Param("lastCommId") Long lastCommId, @Param("orderState") int orderState);
 }

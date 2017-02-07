@@ -1,6 +1,7 @@
 package com.hudongwx.drawlottery.mobile.web.user;
 
 import com.alibaba.fastjson.JSONObject;
+import com.hudongwx.drawlottery.mobile.dto.HistoryResult;
 import com.hudongwx.drawlottery.mobile.service.user.IPromoterProfitService;
 import com.hudongwx.drawlottery.mobile.service.user.ISignInService;
 import com.hudongwx.drawlottery.mobile.service.user.IUserService;
@@ -88,7 +89,7 @@ public class UserController extends BaseController {
     @ApiOperation("获取用户夺宝记录（带分页）")
     @RequestMapping(value = "/api/v1/user/usercomm/show", method = {RequestMethod.POST, RequestMethod.GET})
     public JSONObject queryUserCommRecord(@ApiParam("item（显示形式）：1、进行中；2、已揭晓；其他数字显示全部") @RequestParam("item") Integer item, @ApiParam("最后一个商品Id") @RequestParam("lastCommId") Long lastCommId) {
-        List<Map<String, Object>> historyLottery = userService.selectPurchaseRecords(item, getUserId(), lastCommId);
+        List<HistoryResult> historyLottery = userService.selectPurchaseRecords(item, getUserId(), lastCommId);
         return success(historyLottery);
     }
 
@@ -164,6 +165,15 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/api/v1/user/update/phone", method = {RequestMethod.POST, RequestMethod.GET})
     public JSONObject updatePhone(@RequestParam("phone") String phone, @RequestParam("imgCode") String imgCode, @RequestParam("SMSCode") String SMSCode) {
         return response(true);
+    }
+
+    @ResponseBody
+    @ApiOperation("查询用户绑定的手机号")
+    @RequestMapping(value = "/api/v1/user/get/phone",method = {RequestMethod.POST,RequestMethod.GET})
+    public JSONObject getPhone(){
+        final JSONObject obj = new JSONObject();
+        obj.put("phone",getUser().getPhoneNumber());
+        return success(obj);
     }
 
     /**
