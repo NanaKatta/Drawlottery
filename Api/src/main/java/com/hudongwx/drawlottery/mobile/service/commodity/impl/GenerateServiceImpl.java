@@ -40,7 +40,7 @@ public class GenerateServiceImpl implements IGenerateService {
      */
     @Override
     public void generateCommodity(long tempId, long luckCodeCount) {
-        synchronized (((Long) tempId)){
+        synchronized (((Long) tempId)) {
             //检索生成幸运码
             generateLuckCodes(luckCodeCount);
             final Commoditys commodity = new Commoditys();
@@ -117,9 +117,10 @@ public class GenerateServiceImpl implements IGenerateService {
         List<CommodityTemplate> temps = commodityService.getNotKeepRoundTemplate(roundNum);
         for (CommodityTemplate temp : temps) {
             final Integer count = temp.getCount();
-            for (int i = count; i < roundNum; i++) {
-                generateCommodity(temp.getId(), temp.getBuyTotalNumber());
-            }
+            if (temp.getAutoRound() == 1)
+                for (int i = count; i < roundNum; i++) {
+                    generateCommodity(temp.getId(), temp.getBuyTotalNumber());
+                }
         }
     }
 

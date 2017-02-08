@@ -52,6 +52,7 @@ public class LotteryUtils {
             计算中奖id
          */
         long lotteryId = (sumDate % commodity.getBuyTotalNumber()) + 10000001;
+        System.out.println("--------\nlotteryId:"+lotteryId+"\n--------------");
         lotteryInfo.setLotteryId(lotteryId);
         LuckCodeTemplate template = codesTemplateMapper.selectByCode(lotteryId + "");
         LuckCodes codes = luckCodesMapper.selectBytemplate(template.getId(), commodity.getId());
@@ -65,7 +66,9 @@ public class LotteryUtils {
         long endTime = commodity.getSellOutTime() + Settings.LOTTERY_ANNOUNCE_TIME_INTERVAL;
         endTime = endTime - System.currentTimeMillis();
         endTime = endTime / 1000;
-        System.out.println("延时--------------------->" + endTime+"秒开奖！");
+
+        System.out.println(commodity);
+
         DelayTask.execute(update, (int) endTime);
 
         return lotteryInfo;

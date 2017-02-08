@@ -4,7 +4,6 @@ import com.hudongwx.drawlottery.mobile.entitys.*;
 import com.hudongwx.drawlottery.mobile.mappers.*;
 import com.hudongwx.drawlottery.mobile.service.commodity.ICommodityService;
 import com.hudongwx.drawlottery.mobile.service.commodity.IExchangeMethodService;
-import com.hudongwx.drawlottery.mobile.utils.LotteryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -84,7 +83,6 @@ public class OrdersServiceImplAsync {
 
             if (subNum >= 0) {
                 final long now = System.currentTimeMillis();
-                currentCommodity.setSellOutTime(now);
                 if (currentCommodity.getAutoRound() == 1) {
                     final Commodity nextCommodity = commodityService.groundNext(currentCommodity.getId());
                     commMapper.updateBuyCurrentNum(nextCommodity.getId(), subNum);
@@ -96,7 +94,6 @@ public class OrdersServiceImplAsync {
                 }else{
                     exchangeMethodService.exchangeVirtual(accountId,subNum);
                 }
-                LotteryUtils.raffle(npMapper, commMapper, comMapper, mapper, templateMapper, codesMapper, lotteryInfoMapper, userMapper, currentCommodity);
                 //商品售罄开奖，更新商品信息
                 Commodity temp = new Commodity();
                 temp.setSellOutTime(now);

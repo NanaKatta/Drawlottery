@@ -37,7 +37,8 @@
       SELECT
   temp.id,
   temp.buy_total_number AS buyTotalNumber,
-  IFNULL(cnt.num, 0)    AS count
+  IFNULL(cnt.num, 0)    AS count,
+  temp.auto_round as autoRound
 FROM draw_lottery.t_commodity_template temp
   INNER JOIN (SELECT
                 temp_id,

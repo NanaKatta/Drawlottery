@@ -4,6 +4,7 @@ import com.hudongwx.drawlottery.mobile.entitys.*;
 import com.hudongwx.drawlottery.mobile.mappers.*;
 import com.hudongwx.drawlottery.mobile.service.commodity.ICommodityService;
 import com.hudongwx.drawlottery.mobile.service.order.IOrdersService;
+import com.hudongwx.drawlottery.mobile.utils.LotteryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -58,6 +59,8 @@ public class OrdersServiceImpl implements IOrdersService {
     CommodityHistoryMapper historyMapper;
     @Autowired
     OrdersServiceImplAsync ordersServiceImplAsync;
+    @Autowired
+    NotificationPrizeMapper npMapper;
 
     /**
      * 计算扣款
@@ -96,8 +99,11 @@ public class OrdersServiceImpl implements IOrdersService {
                 updateLuckCodes(accountId, nextCommodity.getId(), buyNum - remainingNum, orders);
                 buyNum = remainingNum;
             }
-
             updateLuckCodes(accountId, currentCommodity.getId(), buyNum, orders);
+            if(buyNum >= remainingNum){
+                currentCommodity.setSellOutTime(System.currentTimeMillis());
+                LotteryUtils.raffle(npMapper, commMapper, comMapper, mapper, templateMapper, codesMapper, lotteryInfoMapper, userMapper, currentCommodity);
+            }
         }
         ordersServiceImplAsync.payAsync(accountId, orders, commodityAmounts);
         return orders.getId();
@@ -224,6 +230,7 @@ public class OrdersServiceImpl implements IOrdersService {
 
     //查询用户当前订单参与商品的所有幸运号
     public List<String> luckCodes(Long accountId, Long commodityId, Long ordersId) {
+        System.out.printf("-------------\naccountId:%s\n commodityId:%s\nordersId:%s\n-------------\n",accountId,commodityId,ordersId);
         List<String> list = new ArrayList<>();
         List<LuckCodes> list1 = codesMapper.selectByOrders(accountId, commodityId, ordersId);
         for (LuckCodes luckCodes : list1) {

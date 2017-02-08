@@ -469,4 +469,34 @@ public class Commoditys {
     public void setMinimum(Integer minimum) {
         this.minimum = minimum;
     }
+
+    @Override
+    public String toString() {
+        return "Commoditys{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", commodityTypeId=" + commodityTypeId +
+                ", genre=" + genre +
+                ", buyCurrentNumber=" + buyCurrentNumber +
+                ", cardType=" + cardType +
+                ", cardNum=" + cardNum +
+                ", cardMoney=" + cardMoney +
+                ", buyTotalNumber=" + buyTotalNumber +
+                ", groundTime=" + groundTime +
+                ", stateId=" + stateId +
+                ", roundTime='" + roundTime + '\'' +
+                ", coverImgUrl='" + coverImgUrl + '\'' +
+                ", autoRound=" + autoRound +
+                ", commodityDescUrl='" + commodityDescUrl + '\'' +
+                ", commodityDesc='" + commodityDesc + '\'' +
+                ", sellOutTime=" + sellOutTime +
+                ", undercarriageTime=" + undercarriageTime +
+                ", viewNum=" + viewNum +
+                ", tempId=" + tempId +
+                ", withdrawalsMoney=" + withdrawalsMoney +
+                ", exchangeMoney=" + exchangeMoney +
+                ", valid=" + valid +
+                ", minimum=" + minimum +
+                '}';
+    }
 }
