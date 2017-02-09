@@ -106,7 +106,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/auth/queryUserByPhoneNum", "authc");//登录验证
         filterChainDefinitionMap.put("/auth/logout", "logout");//
         filterChainDefinitionMap.put("/user*", "authc");//
-        filterChainDefinitionMap.put("/pay*", "authc");//*/
+        filterChainDefinitionMap.put("/createOrder*", "authc");//*/
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
@@ -164,7 +164,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/auth/queryUserByPhoneNum", "authc");//登录验证
         filterChainDefinitionMap.put("/auth/logout", "logout");//
         filterChainDefinitionMap.put("/user*", "authc");//
-        filterChainDefinitionMap.put("/pay*", "authc");//*/
+        filterChainDefinitionMap.put("/createOrder*", "authc");//*/
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;

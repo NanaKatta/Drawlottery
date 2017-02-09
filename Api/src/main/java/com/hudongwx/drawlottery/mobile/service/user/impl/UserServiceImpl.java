@@ -125,8 +125,8 @@ public class UserServiceImpl implements IUserService {
         List<LotteryInfo> infos = lotteryInfoMapper.selectByUserAccountId(accountId, lastCommId, Settings.PAGE_LOAD_SIZE_10);
         for (LotteryInfo lotteryInfo : infos) {
             //查询商品模板
-            Commodity key = cMapper.selectByKey(lotteryInfo.getCommodityId());
-            CommodityTemplate template = tempMapper.selectById(key.getTempId());
+            Commodity commodity = cMapper.selectByKey(lotteryInfo.getCommodityId());
+            CommodityTemplate template = tempMapper.selectById(commodity.getTempId());
             //查询是否已晒单
             Share share = shareMapper.selectByCommId(lotteryInfo.getCommodityId());
             Map<String, Object> map = new HashMap<>();
@@ -137,16 +137,16 @@ public class UserServiceImpl implements IUserService {
             }
             map.put("id", lotteryInfo.getCommodityId());//添加商品id
             map.put("commodityName", template.getName());//添加商品名
-            map.put("roundTime", key.getRoundTime());//添加期数
-            map.put("endTime", key.getEndTime());//揭晓时间
-            map.put("buyNumber", key.getBuyNumber());//购买人次
+            map.put("roundTime", commodity.getRoundTime());//添加期数
+            map.put("endTime", commodity.getEndTime());//揭晓时间
+            map.put("buyNumber", commodity.getBuyNumber());//购买人次
             map.put("luckCode", lotteryInfo.getLotteryId());//添加幸运码
             map.put("imgUrl", template.getCoverImgUrl());//中奖商品图片地址
             map.put("exchangeId", selectExchange(lotteryInfo.getCommodityId()));//添加兑换方式
             map.put("withdrawalsMoney", template.getWithdrawalsMoney());//折换现金金额
             map.put("exchangeMoney", template.getExchangeMoney());//折换闪币
-            map.put("state", key.getExchangeState());//添加兑换状态
-            map.put("exchangeWay", key.getExchangeWay());//添加已选择兑奖方式
+            map.put("state", commodity.getExchangeState());//添加兑换状态
+            map.put("exchangeWay", commodity.getExchangeWay());//添加已选择兑奖方式
             mapList.add(map);
         }
         return mapList;

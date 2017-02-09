@@ -87,8 +87,8 @@ public class PayController extends BaseController {
         paramMap.put("body", "\"" + "互动无限测试数据" + "\"");
         paramMap.put("total_fee", "\"" + 0.01 + "\"");
         //https://openapi.alipaydev.com/gateway.do
-        //mobile.securitypay.pay
-        paramMap.put("service", "\"" +"mobile.securitypay.pay"+ "\"");
+        //mobile.securitypay.createOrder
+        paramMap.put("service", "\"" +"mobile.securitypay.createOrder"+ "\"");
         paramMap.put("payment_type", "\"" + "1" + "\"");
         paramMap.put("_input_charset", "\"" + "utf-8" + "\"");
         paramMap.put("it_b_pay", "\"" + "5m" + "\"");
@@ -193,7 +193,7 @@ public class PayController extends BaseController {
     @RequestMapping(value = "/api/v1/user/order/alipay/query", method = RequestMethod.POST)
     public void orderPayQuery(HttpServletRequest request, HttpServletResponse response, String tradeno, String orderno,
                               String callback) throws AlipayApiException {
-//        LOG.info("[/history/pay/query]");
+//        LOG.info("[/history/createOrder/query]");
 //        AlipayTradeQueryRequest alipayRequest = new AlipayTradeQueryRequest(); // 统一收单线下交易查询
 //        // 只需要传入业务参数
 //        Map<String, Object> param = new HashMap<>();
@@ -233,7 +233,7 @@ public class PayController extends BaseController {
      */
     @RequestMapping(value = "/api/v1/user/order/wxpay/notify", method = RequestMethod.POST)
     public void orderPayNotify(HttpServletRequest request, HttpServletResponse response) {
-        LOG.info("[/history/pay/notify]");
+        LOG.info("[/history/createOrder/notify]");
         // 获取到返回的所有参数 先判断是否交易成功trade_status 再做签名校验
         // 1、商户需要验证该通知数据中的out_trade_no是否为商户系统中创建的订单号，
         // 2、判断total_amount是否确实为该订单的实际金额（即商户订单创建时的金额），
@@ -275,7 +275,7 @@ public class PayController extends BaseController {
     @RequestMapping(value = "/api/v1/user/order/alipay/refund", method = RequestMethod.POST)
     public void orderPayRefund(HttpServletRequest request, HttpServletResponse response, String tradeno, String orderno,
                                String callback) {
-        LOG.info("[/pay/refund]");
+        LOG.info("[/createOrder/refund]");
 //        if (StringUtil.isEmpty(tradeno) && StringUtil.isEmpty(orderno)) {
 //            WebUtil.response(response, WebUtil.packJsonp(callback, JSON
 //                    .toJSONString(new JsonResult(-1, "订单号不能为空", new ResponseData()), SerializerFeatureUtil.FEATURES)));

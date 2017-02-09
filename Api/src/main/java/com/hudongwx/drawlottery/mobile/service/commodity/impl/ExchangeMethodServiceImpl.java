@@ -266,7 +266,7 @@ public class ExchangeMethodServiceImpl implements IExchangeMethodService {
         if (delivery.getDeliveryName() == null) {
             map.put("expressNumber", "空！");//快递单号
             map.put("expressName", "未派发快递");//获取快递名
-            map.put("expressState", "未派发快递");//添加快递状态
+            map.put("expressState", 0);//添加快递状态
             map.put("state", 3);//添加兑换流程状态
         } else {
             map.put("expressNumber", delivery.getDeliveryNumber());//快递单号

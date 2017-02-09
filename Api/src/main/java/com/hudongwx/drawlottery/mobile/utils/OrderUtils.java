@@ -80,7 +80,7 @@ public final class OrderUtils {
      * @throws Exception
      */
     public final static String createAlipayInfo(String orderInfo,String orderId,String subject,String body,String price) throws Exception {
-        StringBuilder builder = new StringBuilder("service=\"mobile.securitypay.pay\"&payment_type=\"1\"&_input_charset=\"utf-8\"&it_b_pay=\"10m\"");
+        StringBuilder builder = new StringBuilder("service=\"mobile.securitypay.createOrder\"&payment_type=\"1\"&_input_charset=\"utf-8\"&it_b_pay=\"10m\"");
         builder.append("&partner=\"");
         builder.append(AlipayConfig.partner);//商户id
         builder.append("\"");
@@ -124,7 +124,7 @@ public final class OrderUtils {
 
         // 1.构建阿里支付订单参数map
        /* Map<String, String> paramMap = new LinkedHashMap<String,String>();
-        paramMap.put("service", "\"" +"mobile.securitypay.pay"+ "\"");
+        paramMap.put("service", "\"" +"mobile.securitypay.createOrder"+ "\"");
         paramMap.put("payment_type", "\"" + "1" + "\"");
         paramMap.put("_input_charset", "\"" + "utf-8" + "\"");
         paramMap.put("it_b_pay", "\"" + "10m" + "\"");

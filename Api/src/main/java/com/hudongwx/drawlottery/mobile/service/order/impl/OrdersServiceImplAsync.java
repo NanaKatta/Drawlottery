@@ -1,9 +1,11 @@
 package com.hudongwx.drawlottery.mobile.service.order.impl;
 
 import com.hudongwx.drawlottery.mobile.entitys.*;
+import com.hudongwx.drawlottery.mobile.exception.ServiceException;
 import com.hudongwx.drawlottery.mobile.mappers.*;
 import com.hudongwx.drawlottery.mobile.service.commodity.ICommodityService;
 import com.hudongwx.drawlottery.mobile.service.commodity.IExchangeMethodService;
+import com.hudongwx.drawlottery.mobile.utils.LotteryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -59,38 +61,26 @@ public class OrdersServiceImplAsync {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void payAsync(Long accountId, Orders orders,
                          List<CommodityAmount> commodityAmounts
-    ) {
+    ) throws ServiceException {
         int price = orders.getPrice();
         //总共需要花费的金额 （商品单价始终为1）
         int sumPrice = 0;
         for (CommodityAmount ca : commodityAmounts) {
-            Commoditys currentCommodity = comMapper.selectByKey(ca.getCommodityId());
-            if(currentCommodity.getStateId() != Commodity.ON_SELL){
-                currentCommodity = commodityService.selectOnSellCommodities(ca.getCommodityId());
-                if(null == currentCommodity)
-                    throw new NullPointerException("未获取到商品");
-            }
+            Commoditys currentCommodity = commodityService.selectOnSellCommodities(ca.getCommodityId());
+            if (null == currentCommodity)
+                throw new ServiceException("未获取商品信息");
             final Integer remainNum = currentCommodity.getBuyTotalNumber() - currentCommodity.getBuyCurrentNumber();
             Integer amount = ca.getAmount();
-            sumPrice += amount;
-
             //调整商品购买数量
             amount -= amount % currentCommodity.getMinimum();
+            sumPrice += amount;
             //购买量与剩余量差值
             final int subNum = amount - remainNum;
-
-            final OrdersCommoditys ordersCommoditys = new OrdersCommoditys(currentCommodity.getId(), orders.getId());
-
             if (subNum >= 0) {
                 final long now = System.currentTimeMillis();
                 if (currentCommodity.getAutoRound() == 1) {
                     final Commodity nextCommodity = commodityService.groundNext(currentCommodity.getId());
                     commMapper.updateBuyCurrentNum(nextCommodity.getId(), subNum);
-                    if(subNum > 0){
-                        final OrdersCommoditys ordersCommoditys1 = new OrdersCommoditys(nextCommodity.getId(), orders.getId());
-                        ordersCommoditys1.setAmount(subNum);
-                        orderMapper.insert(ordersCommoditys1);
-                    }
                 }else{
                     exchangeMethodService.exchangeVirtual(accountId,subNum);
                 }
@@ -100,13 +90,14 @@ public class OrdersServiceImplAsync {
                 temp.setStateId(Commodity.SELL_OUT);
                 temp.setId(currentCommodity.getId());
                 commMapper.updateById(temp);
+                currentCommodity.setSellOutTime(System.currentTimeMillis());
+                //开奖
+                LotteryUtils.raffle(npMapper, commMapper, comMapper, mapper, templateMapper, codesMapper, lotteryInfoMapper, userMapper, currentCommodity);
+
             }
 
             int s = currentCommodity.getBuyCurrentNumber() + Math.min(amount,remainNum);
             commMapper.updateBuyCurrentNum(currentCommodity.getId(), s);
-
-            ordersCommoditys.setAmount(Math.min(amount,remainNum));//设置商品订单表购买数量
-            orderMapper.insert(ordersCommoditys);//添加商品订单信息
 
         }
 

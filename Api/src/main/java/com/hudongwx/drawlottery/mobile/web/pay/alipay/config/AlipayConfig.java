@@ -30,7 +30,7 @@ public final class AlipayConfig {
 	// 字符编码格式 目前支持 gbk 或 utf-8
 	public static final String input_charset = "utf-8";
 	// 接收通知的接口名
-	public static final String service = "mobile.securitypay.pay";
+	public static final String service = "mobile.securitypay.createOrder";
 
 	public static String NOTIFY_URL = "http://192.168.6.115:8080/api/v1/user/order/alipay/callback";
 

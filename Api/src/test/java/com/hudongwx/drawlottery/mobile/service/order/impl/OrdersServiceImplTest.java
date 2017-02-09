@@ -31,7 +31,7 @@ public class OrdersServiceImplTest extends TestBaseMapper {
         commodityAmount.setCommodityId(2L);
         commodityAmount.setAmount(50);
         list.add(commodityAmount);
-        service.pay(accountId, orders, list);
+        service.createOrder(accountId, orders, list);
     }
 
 }

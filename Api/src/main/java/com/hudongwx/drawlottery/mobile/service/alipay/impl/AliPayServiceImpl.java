@@ -175,7 +175,7 @@ public class AliPayServiceImpl implements IAliPayService {
         //公共参数
         Map<String, String> map = new HashMap<String, String>();
         map.put("app_id", AlipayConfig.partner);
-        map.put("method", "alipay.trade.app.pay");
+        map.put("method", "alipay.trade.app.createOrder");
         map.put("format", "json");
         map.put("charset", "utf-8");
         map.put("sign_type", "RSA");
@@ -202,7 +202,7 @@ public class AliPayServiceImpl implements IAliPayService {
         Map<String, String> map4 = new HashMap<String, String>();
 
         //map4.put("app_id", AlipayConfig.APP_ID);
-        map4.put("method", "alipay.trade.app.pay");
+        map4.put("method", "alipay.trade.app.createOrder");
         map4.put("format", "json");
         map4.put("charset", "utf-8");
         map4.put("sign_type", "RSA");

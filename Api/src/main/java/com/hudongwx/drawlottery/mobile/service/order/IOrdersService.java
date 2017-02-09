@@ -2,6 +2,7 @@ package com.hudongwx.drawlottery.mobile.service.order;
 
 import com.hudongwx.drawlottery.mobile.entitys.CommodityAmount;
 import com.hudongwx.drawlottery.mobile.entitys.Orders;
+import com.hudongwx.drawlottery.mobile.exception.ServiceException;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ import java.util.Map;
 public interface IOrdersService {
 
     //创建订单
-    Long pay(Long accountId, Orders orders, List<CommodityAmount> commodityAmounts);
+    Long createOrder(Long accountId, Orders orders, List<CommodityAmount> commodityAmounts) throws ServiceException;
 
     //查看订单详情
     List<Orders> selectByUserAccount(Long userAccount);

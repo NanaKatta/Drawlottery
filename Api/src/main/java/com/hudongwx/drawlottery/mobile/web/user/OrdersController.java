@@ -3,6 +3,7 @@ package com.hudongwx.drawlottery.mobile.web.user;
 import com.alibaba.fastjson.JSONObject;
 import com.hudongwx.drawlottery.mobile.entitys.OrderFormData;
 import com.hudongwx.drawlottery.mobile.entitys.Orders;
+import com.hudongwx.drawlottery.mobile.exception.ServiceException;
 import com.hudongwx.drawlottery.mobile.service.alipay.IAliPayService;
 import com.hudongwx.drawlottery.mobile.service.order.IOrdersService;
 import com.hudongwx.drawlottery.mobile.web.BaseController;
@@ -41,15 +42,21 @@ public class OrdersController extends BaseController {
     IAliPayService aliPayService;
 
     /**
-     * 用户添加订单信息
+     * 创建订单
      *
      * @return
      */
     @ResponseBody
     @ApiOperation("用户提交订单")
     @RequestMapping(value = "/api/v1/user/orders/sub", method = {RequestMethod.POST, RequestMethod.GET})
-    public JSONObject addOrders(@RequestBody OrderFormData orderFormData) {
-        return success("操作成功", ordersService.pay(getUserId(), orderFormData.getOrder(), orderFormData.getCaList()));
+    public JSONObject addOrders(@RequestBody OrderFormData orderFormData) throws ServiceException {
+        return success("操作成功",
+                ordersService.createOrder(
+                        getUserId(),
+                        orderFormData.getOrder(),
+                        orderFormData.getCaList()
+                )
+        );
     }
 
     /**
