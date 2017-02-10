@@ -63,9 +63,18 @@ public interface ILuckCodesService {
 
     /**
      * 查询用于参与总数
-     * @param accountId 用户id
+     *
+     * @param accountId   用户id
      * @param commodityId 商品id
      * @return 参与总数
      */
-    int getCount(Long accountId,Long commodityId);
+    int getCount(Long accountId, Long commodityId);
+
+    /**
+     * 插入幸运码集合
+     *
+     * @param commodityId 商品id
+     * @param max         最大幸运码
+     */
+    void insertCodes(long commodityId, long max);
 }

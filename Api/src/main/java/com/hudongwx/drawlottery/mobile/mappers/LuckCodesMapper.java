@@ -78,4 +78,6 @@ public interface LuckCodesMapper extends BaseMapper<LuckCodes> {
      * @return
      */
     List<LuckCodes> selectAllUserPurchasedCommId(@Param("userAccountId") Long userAccountId, @Param("lastDate") Long lastDate, @Param("pageLoadSize") Integer pageLoadSize);
+
+    void insertCodes(@Param("commodityId") long commodityId, @Param("max") long max);
 }

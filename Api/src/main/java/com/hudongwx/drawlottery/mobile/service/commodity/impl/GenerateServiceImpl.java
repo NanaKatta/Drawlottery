@@ -1,10 +1,8 @@
 package com.hudongwx.drawlottery.mobile.service.commodity.impl;
 
-import com.github.pagehelper.PageHelper;
 import com.hudongwx.drawlottery.mobile.entitys.CommodityTemplate;
 import com.hudongwx.drawlottery.mobile.entitys.Commoditys;
 import com.hudongwx.drawlottery.mobile.entitys.LuckCodeTemplate;
-import com.hudongwx.drawlottery.mobile.entitys.LuckCodes;
 import com.hudongwx.drawlottery.mobile.service.commodity.ICommodityService;
 import com.hudongwx.drawlottery.mobile.service.commodity.IGenerateService;
 import com.hudongwx.drawlottery.mobile.service.luckcodes.ILuckCodesService;
@@ -40,19 +38,17 @@ public class GenerateServiceImpl implements IGenerateService {
      */
     @Override
     public void generateCommodity(long tempId, long luckCodeCount) {
-        synchronized (((Long) tempId)) {
-            //检索生成幸运码
-            generateLuckCodes(luckCodeCount);
-            final Commoditys commodity = new Commoditys();
-            commodity.setBuyCurrentNumber(0);
-            commodity.setRoundTime("" + generateNewRoundTime());
-            commodity.setViewNum(0L);
-            commodity.setTempId(tempId);
-            commodity.setStateId(4);
-            commodityService.addCommodity(commodity);
-            //关联幸运码
-            connectLuckCodes(commodity.getId(), luckCodeCount);
-        }
+        //检索生成幸运码
+        generateLuckCodes(luckCodeCount);
+        final Commoditys commodity = new Commoditys();
+        commodity.setBuyCurrentNumber(0);
+        commodity.setRoundTime("" + generateNewRoundTime());
+        commodity.setViewNum(0L);
+        commodity.setTempId(tempId);
+        commodity.setStateId(4);
+        commodityService.addCommodity(commodity);
+        //关联幸运码
+        luckCodesService.insertCodes(commodity.getId(), luckCodeCount);
     }
 
     /**
@@ -85,26 +81,6 @@ public class GenerateServiceImpl implements IGenerateService {
         return luckBase + total + "";
     }
 
-    /**
-     * 将幸运码关联到商品
-     *
-     * @param commodityId 商品id
-     * @param count       总数
-     */
-    @Override
-    public void connectLuckCodes(long commodityId, long count) {
-        final int onceSelect = 500000;
-        final int onceCreate = 80000;
-        final int base = 10000000;
-        for (int currentPage = 0; currentPage * onceSelect < count; currentPage++) {
-            PageHelper.startPage(currentPage + 1, onceCreate);
-            List<LuckCodes> list = luckCodesService.selectRange(base + count);
-            for (LuckCodes code : list) {
-                code.setCommodityId(commodityId);
-            }
-            luckCodesService.insertCodeList(list);
-        }
-    }
 
     /**
      * 保证同一模板具有 roundNum 的期数
@@ -115,13 +91,10 @@ public class GenerateServiceImpl implements IGenerateService {
     @Override
     public void keepRound(long roundNum) {
         List<CommodityTemplate> temps = commodityService.getNotKeepRoundTemplate(roundNum);
-        for (CommodityTemplate temp : temps) {
-            final Integer count = temp.getCount();
+        for (CommodityTemplate temp : temps)
             if (temp.getAutoRound() == 1)
-                for (int i = count; i < roundNum; i++) {
+                for (int i = temp.getCount(); i < roundNum; i++)
                     generateCommodity(temp.getId(), temp.getBuyTotalNumber());
-                }
-        }
     }
 
     /**

@@ -25,6 +25,10 @@
             (#{code.luckCodeTemplateId},#{code.commodityId})
         </foreach>
     </insert>
+    <insert id="insertCodes">
+        insert into t_luck_codes ( commodity_id, luck_code_template_id) SELECT
+        #{commodityId},id as luckCodeTemplateId from draw_lottery.t_luck_code_template where luck_code &lt;= #{max};
+    </insert>
 
     <select id="selectByUsable" resultMap="BaseResultMap">
     select * from t_luck_codes where commodity_id = #{commodityId} and state = 0

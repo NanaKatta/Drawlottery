@@ -1,16 +1,13 @@
 package com.hudongwx.drawlottery.service.commodity.impl;
 
-import com.github.pagehelper.PageHelper;
 import com.hudongwx.drawlottery.dao.LuckCodeTemplateMapper;
 import com.hudongwx.drawlottery.dao.LuckCodesMapper;
 import com.hudongwx.drawlottery.pojo.LuckCodeTemplate;
-import com.hudongwx.drawlottery.pojo.LuckCodes;
 import com.hudongwx.drawlottery.service.commodity.LuckCodeService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -76,14 +73,7 @@ public class LCServiceImpl implements LuckCodeService {
      */
     @Override
     public void connect(long commodityId, long count) {
-        for (int currentPage = 0; currentPage * 500000 < count; currentPage++) {
-            PageHelper.startPage(currentPage+1, 80000);
-            List<LuckCodes> list = luckTempMapper.selectRange(10000000+count);
-            for (LuckCodes code : list) {
-                code.setCommodityId(commodityId);
-            }
-            luckMapper.insertCodeList(list);
-        }
+        luckMapper.insertCodes(commodityId,10000000+count);
     }
 
 }

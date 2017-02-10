@@ -26,14 +26,6 @@ public interface IGenerateService {
     public String generateLuckCodes(final long total);
 
     /**
-     * 将幸运码关联到商品
-     *
-     * @param commodityId 商品id
-     * @param count       总数
-     */
-    public void connectLuckCodes(long commodityId, long count);
-
-    /**
      * 保证同一模板具有 roundNum 的期数
      *
      * @param roundNum 期数总数

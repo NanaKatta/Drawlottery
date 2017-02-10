@@ -126,4 +126,15 @@ public class LuckCodesServiceImpl implements ILuckCodesService {
         return mapper.countUserCommAmount(accountId,commodityId);
     }
 
+    /**
+     * 插入幸运码集合
+     *
+     * @param commodityId 商品id
+     * @param max         最大幸运码
+     */
+    @Override
+    public void insertCodes(long commodityId, long max) {
+        mapper.insertCodes(commodityId,10000000+max);
+    }
+
 }
