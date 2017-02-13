@@ -113,7 +113,6 @@ public class OrdersServiceImpl implements IOrdersService {
                 //关联订单商品信息 多购买的数量关联到下一期
                 connectOrderAndCommodity(nextCommodity.getId(),orderId,subNum);
                 amount = remainNum;
-
             }
             updateLuckCodes(accountId, currentCommodity.getId(), amount, orderId);
             connectOrderAndCommodity(currentCommodity.getId(),orderId,amount);
