@@ -67,22 +67,32 @@ public class ShiroConfig {
     @Profile(value = "dev")
     public ShiroFilterFactoryBean shiroFilterFactoryBeanDev(){
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
+        //自定义过滤器
+        //用户没有登录的过滤器
+        Map<String, Filter> filters = new LinkedHashMap<String, Filter>();
+        //自定义非法请求
+        filters.put("authc",new MobileAuthenticationFilter());
+        shiroFilterFactoryBean.setFilters(filters);
         //管理安全管理器
         shiroFilterFactoryBean.setSecurityManager(securityManager());
-        //shiroFilterFactoryBean.setUnauthorizedUrl("/api/v1/pub/error/403");//没有登录跳转的地址
+        shiroFilterFactoryBean.setUnauthorizedUrl("/api/v1/pub/error/403");//没有登录跳转的地址
 
 
         //设置自带过滤器,配置url=过滤器关系
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
-        //不需要登录就能访问
-        /*filterChainDefinitionMap.put("/swagger-ui.html*//**","anon");
-        filterChainDefinitionMap.put("/swagger-resources*//**","anon");
-        filterChainDefinitionMap.put("/webjars*//**","anon");
-        filterChainDefinitionMap.put("/v2/api-docs*//**","anon");
-        filterChainDefinitionMap.put("/configuration*//**","anon");
-        filterChainDefinitionMap.put("/api/v1/pub*//**","anon");*/
 
-        filterChainDefinitionMap.put("/**","anon");
+        //不需要登录就能访问
+        filterChainDefinitionMap.put("/swagger-ui.html/**","anon");
+        filterChainDefinitionMap.put("/swagger-resources/**","anon");
+        filterChainDefinitionMap.put("/webjars/**","anon");
+        filterChainDefinitionMap.put("/v2/api-docs/**","anon");
+        filterChainDefinitionMap.put("/configuration/**","anon");
+        filterChainDefinitionMap.put("/api/v1/pub/**","anon");
+        filterChainDefinitionMap.put("/api/v1/index/**","anon");
+
+
+        filterChainDefinitionMap.put("/api/v1/user/**","authc");
+        filterChainDefinitionMap.put("/api/v1/priv/**","authc");
 
         /*
             anon 	org.apache.shiro.web.filter.authc.AnonymousFilter 	匿名过滤器
@@ -139,8 +149,13 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/v2/api-docs/**","anon");
         filterChainDefinitionMap.put("/configuration/**","anon");
         filterChainDefinitionMap.put("/api/v1/pub/**","anon");
+        filterChainDefinitionMap.put("/api/v1/index/**","anon");
 
-        filterChainDefinitionMap.put("/**","authc");
+
+        filterChainDefinitionMap.put("/api/v1/user/**","authc");
+        filterChainDefinitionMap.put("/api/v1/priv/**","authc");
+
+
 
         /*
             anon 	org.apache.shiro.web.filter.authc.AnonymousFilter 	匿名过滤器

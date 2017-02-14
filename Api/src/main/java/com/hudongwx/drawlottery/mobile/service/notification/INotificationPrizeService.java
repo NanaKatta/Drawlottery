@@ -23,9 +23,8 @@ public interface INotificationPrizeService {
     /**
      * 查询用户中奖消息（APP首页提示）
      *
-     * @param accountId
      * @return
      */
-    List<Map<String, Object>> selectUserPrizeNotify(Long accountId);
+    List<Map<String, Object>> selectUserPrizeNotify();
 
 }

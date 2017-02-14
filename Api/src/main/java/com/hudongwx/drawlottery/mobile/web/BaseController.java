@@ -186,7 +186,7 @@ public abstract class BaseController {
      * @return
      */
     public JSONObject fail(int code, String msg) {
-        return response(code, msg, "");
+        return response(code, msg, null);
     }
 
     /**

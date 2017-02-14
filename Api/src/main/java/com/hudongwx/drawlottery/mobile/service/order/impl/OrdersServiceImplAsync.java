@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -57,8 +58,8 @@ public class OrdersServiceImplAsync {
         订单异步处理方法
         异步处理方法必须和调用方法不在同一个类
      */
-    @Async
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    //@Async
+    @Transactional(isolation = Isolation.REPEATABLE_READ,propagation = Propagation.NESTED)
     public void payAsync(Long accountId, Orders orders,
                          List<CommodityAmount> commodityAmounts
     ) throws ServiceException {
@@ -95,9 +96,7 @@ public class OrdersServiceImplAsync {
                 LotteryUtils.raffle(npMapper, commMapper, comMapper, mapper, templateMapper, codesMapper, lotteryInfoMapper, userMapper, currentCommodity);
 
             }
-
-            int s = currentCommodity.getBuyCurrentNumber() + Math.min(amount,remainNum);
-            commMapper.updateBuyCurrentNum(currentCommodity.getId(), s);
+            commMapper.updateBuyCurrentNum(currentCommodity.getId(), Math.min(amount,remainNum));
 
         }
 

@@ -32,7 +32,7 @@ import java.util.Map;
  * @apiNote 关于thymeleaf配置 {@link org.springframework.boot.autoconfigure.thymeleaf.ThymeleafProperties}
  */
 @Controller
-@RequestMapping("/web")
+@RequestMapping("/api/v1/pub/web")
 public class WebController {
     @Resource
     private ICommodityService cService;

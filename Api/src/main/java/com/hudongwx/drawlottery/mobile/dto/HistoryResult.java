@@ -141,4 +141,23 @@ public class HistoryResult {
         this.win = win;
         this.setWinner(win == 1);
     }
+
+    @Override
+    public String toString() {
+        return "HistoryResult{" +
+                "id=" + id +
+                ", userBuyNumber=" + userBuyNumber +
+                ", buyCurrentNumber=" + buyCurrentNumber +
+                ", buyTotalNumber=" + buyTotalNumber +
+                ", commState=" + commState +
+                ", roundTime='" + roundTime + '\'' +
+                ", coverImgUrl='" + coverImgUrl + '\'' +
+                ", commName='" + commName + '\'' +
+                ", userAccountId=" + userAccountId +
+                ", endTime=" + endTime +
+                ", userNickname='" + userNickname + '\'' +
+                ", isWinner=" + isWinner +
+                ", win=" + win +
+                '}';
+    }
 }

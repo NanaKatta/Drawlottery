@@ -43,11 +43,10 @@ public class NotificationPrizeServiceImpl implements INotificationPrizeService {
     /**
      * 查询用户中奖消息（APP首页提示）
      *
-     * @param accountId
      * @return
      */
     @Override
-    public List<Map<String, Object>> selectUserPrizeNotify(Long accountId) {
+    public List<Map<String, Object>> selectUserPrizeNotify() {
         //消息
         List<NotificationPrize> npList = npMapper.selectByNewPrizeNotify(Settings.MAX_INFO_SIZE_05);
         List<Map<String, Object>> mapList = new ArrayList<>();

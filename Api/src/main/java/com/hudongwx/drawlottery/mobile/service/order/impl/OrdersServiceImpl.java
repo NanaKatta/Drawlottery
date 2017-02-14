@@ -8,6 +8,7 @@ import com.hudongwx.drawlottery.mobile.service.order.IOrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -73,7 +74,7 @@ public class OrdersServiceImpl implements IOrdersService {
      * @apiNote 更改逻辑
      */
     @Override
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional(isolation = Isolation.REPEATABLE_READ ,propagation = Propagation.NESTED)
     public Long createOrder(Long accountId, Orders orders, List<CommodityAmount> commodityAmounts) throws ServiceException {
         //-----------创建订单-----------
         Long date = new Date().getTime();
@@ -93,30 +94,32 @@ public class OrdersServiceImpl implements IOrdersService {
         return orders.getId();
     }
 
-
+    @Transactional(isolation = Isolation.REPEATABLE_READ,propagation = Propagation.NESTED)
     private void handleOrderDetail(Long accountId, Long orderId, List<CommodityAmount> commodityAmountList) throws ServiceException {
-        for (CommodityAmount ca : commodityAmountList) {
-            //获取当前购买的商品商品信息
-            Commoditys currentCommodity = commodityService.selectOnSellCommodities(ca.getCommodityId());
-            if (null == currentCommodity)
-                throw new ServiceException("未获取商品信息");
+            System.out.printf("accountId->%s ----开始\n",accountId);
+            for (CommodityAmount ca : commodityAmountList) {
+                //获取当前购买的商品商品信息
+                Commoditys currentCommodity = commodityService.selectOnSellCommodities(ca.getCommodityId());
+                if (null == currentCommodity)
+                    throw new ServiceException("未获取商品信息");
 
-            int remainNum = currentCommodity.getBuyTotalNumber() - currentCommodity.getBuyCurrentNumber();
-            int amount = ca.getAmount();
-            //调整商品购买数量
-            amount -= amount % currentCommodity.getMinimum();
-            //购买量与剩余量差值
-            final int subNum = amount - remainNum;
-            if (subNum > 0 && currentCommodity.getAutoRound() == 1) {
-                Commodity nextCommodity = commodityService.getNextCommodity(currentCommodity.getId());
-                updateLuckCodes(accountId, nextCommodity.getId(), subNum, orderId);
-                //关联订单商品信息 多购买的数量关联到下一期
-                connectOrderAndCommodity(nextCommodity.getId(),orderId,subNum);
-                amount = remainNum;
+                int remainNum = currentCommodity.getBuyTotalNumber() - currentCommodity.getBuyCurrentNumber();
+                int amount = ca.getAmount();
+                //调整商品购买数量
+                amount -= amount % currentCommodity.getMinimum();
+                //购买量与剩余量差值
+                final int subNum = amount - remainNum;
+                if (subNum > 0 && currentCommodity.getAutoRound() == 1) {
+                    Commodity nextCommodity = commodityService.getNextCommodity(currentCommodity.getId());
+                    updateLuckCodes(accountId, nextCommodity.getId(), subNum, orderId);
+                    //关联订单商品信息 多购买的数量关联到下一期
+                    connectOrderAndCommodity(nextCommodity.getId(),orderId,subNum);
+                    amount = remainNum;
+                }
+                updateLuckCodes(accountId, currentCommodity.getId(), amount, orderId);
+                connectOrderAndCommodity(currentCommodity.getId(),orderId,amount);
             }
-            updateLuckCodes(accountId, currentCommodity.getId(), amount, orderId);
-            connectOrderAndCommodity(currentCommodity.getId(),orderId,amount);
-        }
+            System.out.printf("accountId->%s ----结束\n",accountId);
     }
 
     private void connectOrderAndCommodity(Long currentCommodityId,Long orderId,Integer amount){

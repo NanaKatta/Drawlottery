@@ -75,7 +75,7 @@ public class AppIndexController extends BaseController {
     @ResponseBody
     @RequestMapping(value = "/api/v1/index/notice", method = {RequestMethod.POST, RequestMethod.GET})
     public JSONObject notice() {
-        return success(npService.selectUserPrizeNotify(getUserId()));
+        return success(npService.selectUserPrizeNotify());
     }
 
     /**

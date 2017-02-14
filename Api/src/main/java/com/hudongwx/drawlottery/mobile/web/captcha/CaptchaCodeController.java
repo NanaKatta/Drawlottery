@@ -30,7 +30,7 @@ import java.io.IOException;
  */
 @Api(value = "CaptchaCodeController", description = "验证码管理")
 @RestController
-@RequestMapping("/api/v1/public/captcha/")
+@RequestMapping("/api/v1/pub/captcha/")
 public class CaptchaCodeController extends BaseController {
 
     //验证码服务
