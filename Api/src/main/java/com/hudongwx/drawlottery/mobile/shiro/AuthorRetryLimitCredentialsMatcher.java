@@ -1,18 +1,13 @@
 package com.hudongwx.drawlottery.mobile.shiro;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import com.hudongwx.drawlottery.mobile.utils.PasswordUtils;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
-import org.omg.CORBA.Object;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.*;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,7 +25,7 @@ public class AuthorRetryLimitCredentialsMatcher extends HashedCredentialsMatcher
     //缓存的名称
     private final String cacheName;
 
-    private int limitRetry = 10;//重试次数
+    private int limitRetry = 3;//重试次数
 
 
     public AuthorRetryLimitCredentialsMatcher(String cacheName) {
