@@ -4,7 +4,9 @@ import com.hudongwx.drawlottery.mobile.entitys.*;
 import com.hudongwx.drawlottery.mobile.exception.ServiceException;
 import com.hudongwx.drawlottery.mobile.mappers.*;
 import com.hudongwx.drawlottery.mobile.service.commodity.ICommodityService;
+import com.hudongwx.drawlottery.mobile.service.commodity.IExchangeMethodService;
 import com.hudongwx.drawlottery.mobile.service.order.IOrdersService;
+import com.hudongwx.drawlottery.mobile.utils.LotteryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -62,6 +64,8 @@ public class OrdersServiceImpl implements IOrdersService {
     OrdersServiceImplAsync ordersServiceImplAsync;
     @Autowired
     NotificationPrizeMapper npMapper;
+    @Resource
+    private IExchangeMethodService exchangeMethodService;
 
     /**
      * 计算扣款
@@ -74,7 +78,7 @@ public class OrdersServiceImpl implements IOrdersService {
      * @apiNote 更改逻辑
      */
     @Override
-    @Transactional(isolation = Isolation.REPEATABLE_READ ,propagation = Propagation.NESTED)
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public Long createOrder(Long accountId, Orders orders, List<CommodityAmount> commodityAmounts) throws ServiceException {
         //-----------创建订单-----------
         Long date = new Date().getTime();
@@ -84,45 +88,137 @@ public class OrdersServiceImpl implements IOrdersService {
         //-----------创建订单-----------
 
         //-----------处理订单细节-----------
-        handleOrderDetail(accountId, orders.getId(), commodityAmounts);
+        sysHandleOrderDetail(accountId, orders, commodityAmounts);
         //-----------处理订单细节-----------
 
         //-----------异步支付-----------
-        ordersServiceImplAsync.payAsync(accountId, orders, commodityAmounts);
+        //ordersServiceImplAsync.payAsync(accountId, orders, commodityAmounts);
         //-----------异步支付-----------
 
         return orders.getId();
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ,propagation = Propagation.NESTED)
-    private void handleOrderDetail(Long accountId, Long orderId, List<CommodityAmount> commodityAmountList) throws ServiceException {
-            System.out.printf("accountId->%s ----开始\n",accountId);
-            for (CommodityAmount ca : commodityAmountList) {
-                //获取当前购买的商品商品信息
-                Commoditys currentCommodity = commodityService.selectOnSellCommodities(ca.getCommodityId());
-                if (null == currentCommodity)
-                    throw new ServiceException("未获取商品信息");
+    public void sysHandleOrderDetail(long accountId, Orders orders, List<CommodityAmount> commodityAmountList) throws ServiceException {
+        System.out.printf("accountId->%s ----开始\n", accountId);
+        int price = orders.getPrice();
+        final Long orderId = orders.getId();
+        //总共需要花费的金额 （商品单价始终为1）
+        int sumPrice = 0;
+        for (CommodityAmount ca : commodityAmountList) {
+            Commoditys currentCommodity = commodityService.selectOnSellCommodities(ca.getCommodityId());
+            if (null == currentCommodity)
+                throw new ServiceException("未获取商品信息");
 
-                int remainNum = currentCommodity.getBuyTotalNumber() - currentCommodity.getBuyCurrentNumber();
-                int amount = ca.getAmount();
-                //调整商品购买数量
-                amount -= amount % currentCommodity.getMinimum();
-                //购买量与剩余量差值
-                final int subNum = amount - remainNum;
+            final Integer remainNum = currentCommodity.getBuyTotalNumber() - currentCommodity.getBuyCurrentNumber();
+            System.out.printf("remainNum = %s\n",remainNum);
+            Integer amount = ca.getAmount();
+            //调整商品购买数量
+            amount -= amount % currentCommodity.getMinimum();
+            sumPrice += amount;
+            //购买量与剩余量差值
+            final int subNum = amount - remainNum;
+            if (subNum >= 0) {
                 if (subNum > 0 && currentCommodity.getAutoRound() == 1) {
                     Commodity nextCommodity = commodityService.getNextCommodity(currentCommodity.getId());
                     updateLuckCodes(accountId, nextCommodity.getId(), subNum, orderId);
                     //关联订单商品信息 多购买的数量关联到下一期
-                    connectOrderAndCommodity(nextCommodity.getId(),orderId,subNum);
+                    connectOrderAndCommodity(nextCommodity.getId(), orderId, subNum);
                     amount = remainNum;
                 }
-                updateLuckCodes(accountId, currentCommodity.getId(), amount, orderId);
-                connectOrderAndCommodity(currentCommodity.getId(),orderId,amount);
+                if (currentCommodity.getAutoRound() == 1) {
+                    final Commodity nextCommodity = commodityService.groundNext(currentCommodity.getId());
+                    commMapper.updateBuyCurrentNum(nextCommodity.getId(), nextCommodity.getBuyCurrentNumber()+subNum);
+                } else {
+                    exchangeMethodService.exchangeVirtual(accountId, subNum);
+                }
+                //商品售罄开奖，更新商品信息
+                Commodity temp = new Commodity();
+                temp.setSellOutTime(System.currentTimeMillis());
+                temp.setStateId(Commodity.SELL_OUT);
+                temp.setId(currentCommodity.getId());
+                commMapper.updateById(temp);
+                currentCommodity.setSellOutTime(System.currentTimeMillis());
+                //开奖
+                LotteryUtils.raffle(npMapper, commMapper, comMapper, mapper, templateMapper, codesMapper, lotteryInfoMapper, userMapper, currentCommodity);
             }
-            System.out.printf("accountId->%s ----结束\n",accountId);
+            final boolean b = updateLuckCodes(accountId, currentCommodity.getId(), amount, orderId);
+            //如果没有拿到幸运码
+            if (!b)
+                throw new ServiceException("未获取到幸运码");
+            connectOrderAndCommodity(currentCommodity.getId(), orderId, amount);
+            commMapper.updateBuyCurrentNum(currentCommodity.getId(), currentCommodity.getBuyCurrentNumber()+Math.min(amount, remainNum));
+        }
+        //余额更改量
+        int changeNum;
+        //红包面额
+        int redNum;
+
+        int tempNum = 0;
+        //红包
+        Long packetId = orders.getRedPacketId();
+        if (packetId != null && packetId != 0) { // 如果红包ID不为空
+            RedPackets red = new RedPackets();
+            red.setId(orders.getRedPacketId());
+            //查询红包面值
+            RedPackets redPackets = redMapper.selectByPrimaryKey(orders.getRedPacketId());
+            redNum = redPackets.getWorth();
+
+            if (sumPrice != 0) {//有购买量则使用红包
+                //更改红包使用状态
+                red.setUseState(1);
+                redMapper.updateByPrimaryKeySelective(red);
+                sumPrice -= redNum;
+                if (redNum >= sumPrice) {//红包数额大于购买量
+                    sumPrice = 0;
+                    tempNum = redNum;
+                }
+            }
+        }
+
+        if (orders.getPayModeId() == 1) {//使用余额付款方式
+            changeNum = -sumPrice;
+        } else {
+            changeNum = price - sumPrice - tempNum;
+        }
+        User u = userMapper.selectById(accountId);
+        u.setGoldNumber(u.getGoldNumber() + changeNum);
+        userMapper.updateByPrimaryKeySelective(u);
+
+        //支付成功之后，更改订单支付状态
+        orders.setPayState(1);
+        mapper.updatePayState(orders.getId(), 1);
+        System.out.printf("accountId->%s ----结束\n", accountId);
     }
 
-    private void connectOrderAndCommodity(Long currentCommodityId,Long orderId,Integer amount){
+    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.NESTED)
+    private void handleOrderDetail(Long accountId, Long orderId, List<CommodityAmount> commodityAmountList) throws ServiceException {
+        System.out.printf("accountId->%s ----开始\n", accountId);
+        for (CommodityAmount ca : commodityAmountList) {
+            //获取当前购买的商品商品信息
+            Commoditys currentCommodity = commodityService.selectOnSellCommodities(ca.getCommodityId());
+            if (null == currentCommodity)
+                throw new ServiceException("未获取商品信息");
+
+            int remainNum = currentCommodity.getBuyTotalNumber() - currentCommodity.getBuyCurrentNumber();
+            int amount = ca.getAmount();
+            //调整商品购买数量
+            amount -= amount % currentCommodity.getMinimum();
+            //购买量与剩余量差值
+            final int subNum = amount - remainNum;
+            if (subNum > 0 && currentCommodity.getAutoRound() == 1) {
+                Commodity nextCommodity = commodityService.getNextCommodity(currentCommodity.getId());
+                updateLuckCodes(accountId, nextCommodity.getId(), subNum, orderId);
+                //关联订单商品信息 多购买的数量关联到下一期
+                connectOrderAndCommodity(nextCommodity.getId(), orderId, subNum);
+                amount = remainNum;
+            }
+            updateLuckCodes(accountId, currentCommodity.getId(), amount, orderId);
+            connectOrderAndCommodity(currentCommodity.getId(), orderId, amount);
+        }
+        System.out.printf("accountId->%s ----结束\n", accountId);
+    }
+
+    private void connectOrderAndCommodity(Long currentCommodityId, Long orderId, Integer amount) {
         final OrdersCommoditys ordersCommoditys = new OrdersCommoditys(currentCommodityId, orderId);
         ordersCommoditys.setAmount(amount);
         orderMapper.insert(ordersCommoditys);//添加商品订单信息

@@ -328,12 +328,12 @@
         <include refid="selectSql"></include>
         where commodity_id = (
         select commodity_id from t_commoditys inner join draw_lottery.t_commodity_template temp on temp_id = temp.id WHERE temp_id = (
-          select temp_id from t_commoditys where commodity_id = #{id}) and (buy_current_number &lt; temp.buy_total_number) LIMIT 1)
+          select temp_id from t_commoditys where commodity_id = #{id}) and state_id = 3 LIMIT 1)
         UNION
         <include refid="select_Sql_comm_history"></include>
         where commodity_id = (
         select commodity_id from t_commoditys inner join draw_lottery.t_commodity_template temp on temp_id = temp.id WHERE temp_id = (
-        select temp_id from t_commoditys where commodity_id = #{id}) and (buy_current_number &gt; temp.buy_total_number) LIMIT 1)
+        select temp_id from t_commoditys where commodity_id = #{id}) and state_id = 3 LIMIT 1)
     </select>
 
     <!-- 商品通用查询语句 -->

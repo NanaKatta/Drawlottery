@@ -58,7 +58,7 @@ public class OrdersServiceImplAsync {
         订单异步处理方法
         异步处理方法必须和调用方法不在同一个类
      */
-    //@Async
+    @Async
     @Transactional(isolation = Isolation.REPEATABLE_READ,propagation = Propagation.NESTED)
     public void payAsync(Long accountId, Orders orders,
                          List<CommodityAmount> commodityAmounts
@@ -81,7 +81,7 @@ public class OrdersServiceImplAsync {
                 final long now = System.currentTimeMillis();
                 if (currentCommodity.getAutoRound() == 1) {
                     final Commodity nextCommodity = commodityService.groundNext(currentCommodity.getId());
-                    commMapper.updateBuyCurrentNum(nextCommodity.getId(), subNum);
+                    commMapper.updateBuyCurrentNum(nextCommodity.getId(), nextCommodity.getBuyCurrentNumber()+subNum);
                 }else{
                     exchangeMethodService.exchangeVirtual(accountId,subNum);
                 }
@@ -96,7 +96,7 @@ public class OrdersServiceImplAsync {
                 LotteryUtils.raffle(npMapper, commMapper, comMapper, mapper, templateMapper, codesMapper, lotteryInfoMapper, userMapper, currentCommodity);
 
             }
-            commMapper.updateBuyCurrentNum(currentCommodity.getId(), Math.min(amount,remainNum));
+            commMapper.updateBuyCurrentNum(currentCommodity.getId(), currentCommodity.getBuyCurrentNumber()+Math.min(amount,remainNum));
 
         }
 

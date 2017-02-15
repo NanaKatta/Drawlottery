@@ -87,7 +87,7 @@
         UPDATE t_commoditys SET view_num = #{viewNum} where commodity_id = #{commId}
     </update>
     <update id="updateBuyCurrentNum">
-        update draw_lottery.t_commoditys SET buy_current_number = (buy_current_number+#{buyCurrentNumber}) where commodity_id = #{id}
+        update draw_lottery.t_commoditys SET buy_current_number = #{buyCurrentNumber} where commodity_id = #{id}
     </update>
 
     <!-- 查看往期揭晓数据 -->
