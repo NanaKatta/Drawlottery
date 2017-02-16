@@ -194,3 +194,11 @@
 11557 INFO  [2017-02-15 18:12:44]  {dataSource-1} closed
 0    INFO  [2017-02-15 18:15:07]  {dataSource-1} inited
 11510 INFO  [2017-02-15 18:15:19]  {dataSource-1} closed
+1    INFO  [2017-02-16 18:02:30]  {dataSource-1} inited
+11897 INFO  [2017-02-16 18:02:42]  {dataSource-1} closed
+0    INFO  [2017-02-16 18:03:58]  {dataSource-1} inited
+12453 INFO  [2017-02-16 18:04:11]  {dataSource-1} closed
+0    INFO  [2017-02-16 18:09:31]  {dataSource-1} inited
+11522 INFO  [2017-02-16 18:09:43]  {dataSource-1} closed
+0    INFO  [2017-02-16 18:11:01]  {dataSource-1} inited
+11672 INFO  [2017-02-16 18:11:13]  {dataSource-1} closed

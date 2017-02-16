@@ -1,14 +1,17 @@
 package com.hudongwx.drawlottery.mobile.service.notification.impl;
 
-import com.hudongwx.drawlottery.mobile.entitys.*;
+import com.hudongwx.drawlottery.mobile.entitys.Commodity;
+import com.hudongwx.drawlottery.mobile.entitys.LotteryInfo;
+import com.hudongwx.drawlottery.mobile.entitys.LuckNotice;
+import com.hudongwx.drawlottery.mobile.entitys.User;
 import com.hudongwx.drawlottery.mobile.mappers.*;
-import com.hudongwx.drawlottery.mobile.schedule.DelayTask;
 import com.hudongwx.drawlottery.mobile.service.notification.ILuckNoticeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 开发公司：hudongwx.com<br/>
@@ -72,12 +75,6 @@ public class LuckNoticeServiceImpl implements ILuckNoticeService{
         else {
             return map;
         }
-
-
-
-
-
-
     }
 
     @Override

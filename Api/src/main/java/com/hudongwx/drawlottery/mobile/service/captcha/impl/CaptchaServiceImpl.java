@@ -1,5 +1,6 @@
 package com.hudongwx.drawlottery.mobile.service.captcha.impl;
 
+import com.hudongwx.drawlottery.mobile.conf.cache.CustomGenericManageableCaptchaService;
 import com.hudongwx.drawlottery.mobile.service.captcha.ICaptchaService;
 import com.octo.captcha.service.image.ImageCaptchaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +73,11 @@ public class CaptchaServiceImpl implements ICaptchaService {
      * @return
      */
     public boolean validatorImageCode(String id,String code){
-        return captchaService.validateResponseForID(id,code);
+        if(captchaService.validateResponseForID(id,code)){
+            ((CustomGenericManageableCaptchaService)captchaService).removeCaptcha(id);
+            return true;
+        }
+        return false;
     }
 
 }

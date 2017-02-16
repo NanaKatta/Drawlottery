@@ -43,7 +43,7 @@ public class OrdersServiceImplTest extends TestBaseMapper {
                 List<CommodityAmount> list = new ArrayList<>();
                 CommodityAmount commodityAmount = new CommodityAmount();
                 commodityAmount.setCommodityId(2L);
-                commodityAmount.setAmount(20);
+                commodityAmount.setAmount(18);
                 list.add(commodityAmount);
                 try {
                     service.createOrder(accountId, orders, list);

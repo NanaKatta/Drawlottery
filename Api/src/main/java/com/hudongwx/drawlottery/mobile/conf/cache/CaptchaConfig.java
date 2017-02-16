@@ -23,7 +23,6 @@ import com.octo.captcha.engine.CaptchaEngine;
 import com.octo.captcha.engine.image.ListImageCaptchaEngine;
 import com.octo.captcha.image.gimpy.GimpyFactory;
 import com.octo.captcha.service.captchastore.FastHashMapCaptchaStore;
-import com.octo.captcha.service.image.DefaultManageableImageCaptchaService;
 import com.octo.captcha.service.image.ImageCaptchaService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,13 +47,12 @@ import java.util.ArrayList;
  */
 @Configuration
 public class CaptchaConfig {
-
     /**
      * 图片验证码配置
      */
     @Bean
     public ImageCaptchaService getImageCaptchaService(CaptchaEngine engine){
-        return new DefaultManageableImageCaptchaService(new FastHashMapCaptchaStore(),engine,180,50000,35000);
+        return new CustomGenericManageableCaptchaService(new FastHashMapCaptchaStore(),engine,180,50000,35000);
     }
     @Bean
     public CaptchaEngine getEngine(){

@@ -67,6 +67,8 @@ public class OrdersServiceImpl implements IOrdersService {
     @Resource
     private IExchangeMethodService exchangeMethodService;
 
+    private final static Object lock = new Object();
+
     /**
      * 计算扣款
      * 有下一期情况下：如果购买数大于剩余数量，会购买下一期
@@ -78,7 +80,7 @@ public class OrdersServiceImpl implements IOrdersService {
      * @apiNote 更改逻辑
      */
     @Override
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public Long createOrder(Long accountId, Orders orders, List<CommodityAmount> commodityAmounts) throws ServiceException {
         //-----------创建订单-----------
         Long date = new Date().getTime();
@@ -88,7 +90,9 @@ public class OrdersServiceImpl implements IOrdersService {
         //-----------创建订单-----------
 
         //-----------处理订单细节-----------
-        sysHandleOrderDetail(accountId, orders, commodityAmounts);
+        synchronized (lock){
+            sysHandleOrderDetail(accountId, orders, commodityAmounts);
+        }
         //-----------处理订单细节-----------
 
         //-----------异步支付-----------
@@ -97,9 +101,8 @@ public class OrdersServiceImpl implements IOrdersService {
 
         return orders.getId();
     }
-
+    @Transactional(isolation = Isolation.READ_COMMITTED,rollbackForClassName = {"ServiceException","Exception"})
     public void sysHandleOrderDetail(long accountId, Orders orders, List<CommodityAmount> commodityAmountList) throws ServiceException {
-        System.out.printf("accountId->%s ----开始\n", accountId);
         int price = orders.getPrice();
         final Long orderId = orders.getId();
         //总共需要花费的金额 （商品单价始终为1）
@@ -110,7 +113,6 @@ public class OrdersServiceImpl implements IOrdersService {
                 throw new ServiceException("未获取商品信息");
 
             final Integer remainNum = currentCommodity.getBuyTotalNumber() - currentCommodity.getBuyCurrentNumber();
-            System.out.printf("remainNum = %s\n",remainNum);
             Integer amount = ca.getAmount();
             //调整商品购买数量
             amount -= amount % currentCommodity.getMinimum();
@@ -138,13 +140,17 @@ public class OrdersServiceImpl implements IOrdersService {
                 temp.setId(currentCommodity.getId());
                 commMapper.updateById(temp);
                 currentCommodity.setSellOutTime(System.currentTimeMillis());
-                //开奖
-                LotteryUtils.raffle(npMapper, commMapper, comMapper, mapper, templateMapper, codesMapper, lotteryInfoMapper, userMapper, currentCommodity);
             }
             final boolean b = updateLuckCodes(accountId, currentCommodity.getId(), amount, orderId);
             //如果没有拿到幸运码
-            if (!b)
+            if (!b){
+                System.out.printf("remainNum = %s,amount = %s,orderId = %s",subNum,amount,orderId);
                 throw new ServiceException("未获取到幸运码");
+            }
+            if(subNum >= 0){
+                //开奖
+                LotteryUtils.raffle(npMapper, commMapper, comMapper, mapper, templateMapper, codesMapper, lotteryInfoMapper, userMapper, currentCommodity);
+            }
             connectOrderAndCommodity(currentCommodity.getId(), orderId, amount);
             commMapper.updateBuyCurrentNum(currentCommodity.getId(), currentCommodity.getBuyCurrentNumber()+Math.min(amount, remainNum));
         }
@@ -181,13 +187,14 @@ public class OrdersServiceImpl implements IOrdersService {
             changeNum = price - sumPrice - tempNum;
         }
         User u = userMapper.selectById(accountId);
+        if(u.getGoldNumber() + changeNum < 0)
+            throw new ServiceException("余额不足");
         u.setGoldNumber(u.getGoldNumber() + changeNum);
         userMapper.updateByPrimaryKeySelective(u);
 
         //支付成功之后，更改订单支付状态
         orders.setPayState(1);
         mapper.updatePayState(orders.getId(), 1);
-        System.out.printf("accountId->%s ----结束\n", accountId);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.NESTED)

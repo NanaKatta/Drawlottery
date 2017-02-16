@@ -45,6 +45,7 @@ public class CaptchaCodeController extends BaseController {
     @ApiOperation(value = "获取图形验证码", notes = "获取图形验证码",produces = "image/jpeg")
     @RequestMapping(value = "/get/imgcode", method = {RequestMethod.POST, RequestMethod.GET})
     public void queryVerifyCode(HttpServletResponse response) throws IOException {
+        System.out.printf("get->sessionId = %s\n",getSessionId());
         //设置头信息
         response.setHeader("Cache-Control", "no-store");
         response.setHeader("Pragma", "no-cache");
@@ -69,6 +70,8 @@ public class CaptchaCodeController extends BaseController {
     @RequestMapping(value = "/check/imgcode", method = {RequestMethod.POST, RequestMethod.GET})
     public JSONObject checkImgCaptchaCode(@ApiParam(name = "imgcode", value = "验证码", required = true)
                                               @RequestParam("imgcode") String imgcode){
+        System.out.printf("imgcode = %s\n",imgcode);
+        System.out.printf("check->sessionId = %s\n",getSessionId());
         if(captchaService.validatorImageCode(getSessionId(),imgcode)){
             return success();
         }else{
@@ -82,7 +85,11 @@ public class CaptchaCodeController extends BaseController {
      * @return
      */
     @RequestMapping(value = "/sendsms", method = {RequestMethod.POST, RequestMethod.GET})
-    public JSONObject sendPhoneCaptchaCode(@RequestParam String phoneNumber){
+    public JSONObject sendPhoneCaptchaCode(@RequestParam String imgCode,@RequestParam String phoneNumber){
+        final boolean b = captchaService.validatorImageCode(getSessionId(), imgCode);
+        if(!b){
+            return fail("验证码错误");
+        }
         final String s = captchaService.sendPhoneCaptchaCode(getSessionId(),phoneNumber);
         System.out.println("验证码："+s);
         return  success();
