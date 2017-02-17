@@ -1,8 +1,11 @@
 package com.hudongwx.drawlottery.mobile.web.captcha;
 
 import com.alibaba.fastjson.JSONObject;
+import com.hudongwx.drawlottery.mobile.entitys.User;
 import com.hudongwx.drawlottery.mobile.service.captcha.ICaptchaService;
+import com.hudongwx.drawlottery.mobile.service.user.IUserService;
 import com.hudongwx.drawlottery.mobile.utils.Settings;
+import com.hudongwx.drawlottery.mobile.utils.ValiDateUtils;
 import com.hudongwx.drawlottery.mobile.utils.VerifyCodeUtils;
 import com.hudongwx.drawlottery.mobile.web.BaseController;
 import io.swagger.annotations.Api;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +40,8 @@ public class CaptchaCodeController extends BaseController {
     //验证码服务
     @Autowired
     ICaptchaService captchaService;
+    @Resource
+    private IUserService userService;
 
     /**
      *
@@ -70,9 +76,7 @@ public class CaptchaCodeController extends BaseController {
     @RequestMapping(value = "/check/imgcode", method = {RequestMethod.POST, RequestMethod.GET})
     public JSONObject checkImgCaptchaCode(@ApiParam(name = "imgcode", value = "验证码", required = true)
                                               @RequestParam("imgcode") String imgcode){
-        System.out.printf("imgcode = %s\n",imgcode);
-        System.out.printf("check->sessionId = %s\n",getSessionId());
-        if(captchaService.validatorImageCode(getSessionId(),imgcode)){
+        if(captchaService.validatorImageCode(getSessionId(),imgcode,false)){
             return success();
         }else{
             return fail(-1,"验证码错误");
@@ -86,12 +90,17 @@ public class CaptchaCodeController extends BaseController {
      */
     @RequestMapping(value = "/sendsms", method = {RequestMethod.POST, RequestMethod.GET})
     public JSONObject sendPhoneCaptchaCode(@RequestParam String imgCode,@RequestParam String phoneNumber){
-        final boolean b = captchaService.validatorImageCode(getSessionId(), imgCode);
+        if(!ValiDateUtils.isPhone(phoneNumber))
+            return fail("请输入正确的手机号");
+        final User user = userService.queryUserByPhoneNum(phoneNumber);
+        if(user != null){
+            return fail("该手机号已经被注册");
+        }
+        final boolean b = captchaService.validatorImageCode(getSessionId(), imgCode,true);
         if(!b){
             return fail("验证码错误");
         }
         final String s = captchaService.sendPhoneCaptchaCode(getSessionId(),phoneNumber);
-        System.out.println("验证码："+s);
         return  success();
     }
 

@@ -144,7 +144,6 @@ public class OrdersServiceImpl implements IOrdersService {
             final boolean b = updateLuckCodes(accountId, currentCommodity.getId(), amount, orderId);
             //如果没有拿到幸运码
             if (!b){
-                System.out.printf("remainNum = %s,amount = %s,orderId = %s",subNum,amount,orderId);
                 throw new ServiceException("未获取到幸运码");
             }
             if(subNum >= 0){
@@ -199,7 +198,6 @@ public class OrdersServiceImpl implements IOrdersService {
 
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.NESTED)
     private void handleOrderDetail(Long accountId, Long orderId, List<CommodityAmount> commodityAmountList) throws ServiceException {
-        System.out.printf("accountId->%s ----开始\n", accountId);
         for (CommodityAmount ca : commodityAmountList) {
             //获取当前购买的商品商品信息
             Commoditys currentCommodity = commodityService.selectOnSellCommodities(ca.getCommodityId());
@@ -222,7 +220,6 @@ public class OrdersServiceImpl implements IOrdersService {
             updateLuckCodes(accountId, currentCommodity.getId(), amount, orderId);
             connectOrderAndCommodity(currentCommodity.getId(), orderId, amount);
         }
-        System.out.printf("accountId->%s ----结束\n", accountId);
     }
 
     private void connectOrderAndCommodity(Long currentCommodityId, Long orderId, Integer amount) {
@@ -242,7 +239,6 @@ public class OrdersServiceImpl implements IOrdersService {
         Date date = new Date();
         int i = codesMapper.updateCodesState(accountId, commodityId, ordersId,
                 date.getTime(), buyNum);//自定义动态更新sql
-        System.out.println("codes:" + i);
         return i > 0;
     }
 

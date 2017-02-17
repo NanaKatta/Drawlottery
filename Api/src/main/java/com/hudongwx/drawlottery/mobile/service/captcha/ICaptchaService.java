@@ -31,7 +31,7 @@ public interface ICaptchaService  {
      * @param code
      * @return
      */
-    public boolean validatorImageCode(String id,String code);
+    public boolean validatorImageCode(String id,String code,boolean isRemove);
 
 
     /**

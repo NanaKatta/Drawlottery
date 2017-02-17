@@ -65,6 +65,19 @@
             <!--<version>RELEASE</version>-->
         <!--</dependency>-->
 
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-core</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-dm</artifactId>
+            <version>3.0.0-rc2</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>

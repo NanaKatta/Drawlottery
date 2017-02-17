@@ -72,9 +72,10 @@ public class CaptchaServiceImpl implements ICaptchaService {
      * @param code
      * @return
      */
-    public boolean validatorImageCode(String id,String code){
+    public boolean validatorImageCode(String id,String code,boolean isRemove){
         if(captchaService.validateResponseForID(id,code)){
-            ((CustomGenericManageableCaptchaService)captchaService).removeCaptcha(id);
+            if(isRemove)
+                ((CustomGenericManageableCaptchaService)captchaService).removeCaptcha(id);
             return true;
         }
         return false;

@@ -59,9 +59,10 @@ public class CustomGenericManageableCaptchaService extends GenericManageableCapt
     @Override
     public Boolean validateResponseForID(String ID, Object response)
             throws CaptchaServiceException {
+        System.out.printf("sessionId = %s,code = %s",ID,response);
         if (!this.store.hasCaptcha(ID)) {
             throw new CaptchaServiceException(
-                    "Invalid ID, could not validate unexisting or already validated captcha");
+                    "验证码失效或没有该验证码");
         }
         Boolean valid = this.store.getCaptcha(ID).validateResponse(response);
         //源码的这一句是没被注释的，这里我们注释掉，在下面暴露一个方法给我们自己来移除sessionId
